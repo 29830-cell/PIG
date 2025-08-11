@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แอปหมูออมเงิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #FFF5F7;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .piggy-shadow {
+            filter: drop-shadow(0 4px 6px rgba(252, 129, 129, 0.3));
+        }
+        .transaction-item:nth-child(even) {
+            background-color: rgba(254, 215, 226, 0.3);
+        }
+        .tab-active {
+            background-color: #FED7E2;
+            color: #97266D;
+            font-weight: 600;
+        }
+        .tab {
+            transition: all 0.3s ease;
+        }
+        .tab:hover:not(.tab-active) {
+            background-color: #FEEBC8;
+        }
+        .input-field {
+            transition: all 0.2s ease;
+            border: 2px solid #FBD38D;
+        }
+        .input-field:focus {
+            border-color: #ED64A6;
+            box-shadow: 0 0 0 3px rgba(237, 100, 166, 0.2);
+        }
+        .btn-add {
+            transition: all 0.3s ease;
+        }
+        .btn-add:hover {
+            transform: scale(1.03);
+        }
+        .btn-add:active {
+            transform: scale(0.98);
+        }
+        .piggy-bounce {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        .cover-animation {
+            animation: fadeIn 1.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .coin {
+            animation: coinDrop 1s ease-out;
+        }
+        @keyframes coinDrop {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            70% {
+                transform: translateY(10px);
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .summary-card {
+            transition: all 0.3s ease;
+        }
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Mobile optimizations */
+        input, select, button {
+            font-size: 16px; /* Prevents iOS zoom on focus */
+        }
+        .tab {
+            padding: 10px 0;
+            font-size: 14px;
+        }
+        .bottom-nav {
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-md mx-auto bg-pink-50 min-h-screen">
+        <!-- Cover Page -->
+        <div id="cover-container" class="min-h-screen flex flex-col justify-center items-center cover-animation px-6">
+            <div class="piggy-shadow mb-6">
+                <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M70,30 C85,40 85,60 70,70 L75,80 L65,80 L60,70 C50,75 40,75 30,70 L25,80 L15,80 L20,70 C5,60 5,40 20,30 C30,20 60,20 70,30 Z" fill="#FBB6CE"/>
+                    <circle cx="35" cy="45" r="5" fill="#742A2A"/>
+                    <circle cx="65" cy="45" r="5" fill="#742A2A"/>
+                    <path d="M45,60 Q50,65 55,60" stroke="#742A2A" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M30,20 L30,10 L40,10 L40,15" fill="none" stroke="#FBB6CE" stroke-width="5"/>
+                    <rect x="45" y="25" width="10" height="15" rx="5" fill="#742A2A"/>
+                </svg>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-pink-700 mb-4 text-center">แอปหมูออมเงิน</h1>
+            <p class="text-lg text-pink-600 mb-8 text-center">จัดการเงินของคุณอย่างชาญฉลาด</p>
+            
+            <div class="relative mb-10">
+                <div class="coin absolute -top-10 -left-10">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#FACA15" stroke="#B7791F" stroke-width="5"/>
+                        <circle cx="50" cy="50" r="30" fill="#F6E05E"/>
+                        <text x="50" y="65" text-anchor="middle" font-size="30" font-weight="bold" fill="#B7791F">฿</text>
+                    </svg>
+                </div>
+                <div class="coin absolute -top-5 -right-5" style="animation-delay: 0.3s;">
+                    <svg width="30" height="30" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#FACA15" stroke="#B7791F" stroke-width="5"/>
+                        <circle cx="50" cy="50" r="30" fill="#F6E05E"/>
+                        <text x="50" y="65" text-anchor="middle" font-size="30" font-weight="bold" fill="#B7791F">฿</text>
+                    </svg>
+                </div>
+                <button id="start-app" class="bg-pink-500 hover:bg-pink-600 text-white font-medium py-4 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 w-full text-lg">
+                    เริ่มใช้งาน
+                </button>
+            </div>
+            
+            <div class="text-center text-pink-400 text-sm">
+                <p>ออมเงิน · ติดตามค่าใช้จ่าย · วางแผนการเงิน</p>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-container" class="hidden flex flex-col min-h-screen">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 bg-white shadow-sm">
+                <h1 class="text-xl font-bold text-pink-700">แอปหมูออมเงิน</h1>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-600 mr-2">สวัสดี</span>
+                    <div class="w-8 h-8 bg-pink-200 rounded-full flex items-center justify-center">
+                        <span class="text-pink-700 font-bold">ก</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-4 pb-20">
+                <!-- Piggy Bank Summary -->
+                <div class="bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl p-4 mb-5 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h2 class="text-base font-semibold text-pink-800">ยอดเงินคงเหลือ</h2>
+                            <p class="text-2xl font-bold text-pink-700" id="total-balance">฿ 5,250.00</p>
+                        </div>
+                        <div class="piggy-shadow piggy-bounce">
+                            <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M70,30 C85,40 85,60 70,70 L75,80 L65,80 L60,70 C50,75 40,75 30,70 L25,80 L15,80 L20,70 C5,60 5,40 20,30 C30,20 60,20 70,30 Z" fill="#FBB6CE"/>
+                                <circle cx="35" cy="45" r="5" fill="#742A2A"/>
+                                <circle cx="65" cy="45" r="5" fill="#742A2A"/>
+                                <path d="M45,60 Q50,65 55,60" stroke="#742A2A" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M30,20 L30,10 L40,10 L40,15" fill="none" stroke="#FBB6CE" stroke-width="5"/>
+                                <rect x="45" y="25" width="10" height="15" rx="5" fill="#742A2A"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <div>
+                            <p class="text-green-700 font-medium">รายรับ</p>
+                            <p class="text-green-600 font-bold" id="total-income">฿ 8,500.00</p>
+                        </div>
+                        <div>
+                            <p class="text-red-700 font-medium">รายจ่าย</p>
+                            <p class="text-red-600 font-bold" id="total-expense">฿ 3,250.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions List -->
+                <div id="transactions-container" class="bg-white rounded-xl p-4 shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">รายการล่าสุด</h3>
+                        <select class="bg-pink-50 text-pink-700 text-sm rounded-md px-2 py-1 border border-pink-200" id="filter-transactions">
+                            <option value="all">ทั้งหมด</option>
+                            <option value="income">รายรับ</option>
+                            <option value="expense">รายจ่าย</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2" id="transactions-list">
+                        <div class="transaction-item p-3 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">เงินเดือน</p>
+                                <p class="text-xs text-gray-500">15 มิ.ย. 2023</p>
+                            </div>
+                            <p class="text-green-600 font-bold">+฿ 8,000.00</p>
+                        </div>
+                        <div class="transaction-item p-3 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">ค่าอาหาร</p>
+                                <p class="text-xs text-gray-500">16 มิ.ย. 2023</p>
+                            </div>
+                            <p class="text-red-600 font-bold">-฿ 250.00</p>
+                        </div>
+                        <div class="transaction-item p-3 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">ค่าเดินทาง</p>
+                                <p class="text-xs text-gray-500">17 มิ.ย. 2023</p>
+                            </div>
+                            <p class="text-red-600 font-bold">-฿ 500.00</p>
+                        </div>
+                        <div class="transaction-item p-3 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">โบนัส</p>
+                                <p class="text-xs text-gray-500">20 มิ.ย. 2023</p>
+                            </div>
+                            <p class="text-green-600 font-bold">+฿ 500.00</p>
+                        </div>
+                        <div class="transaction-item p-3 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">ค่าน้ำค่าไฟ</p>
+                                <p class="text-xs text-gray-500">22 มิ.ย. 2023</p>
+                            </div>
+                            <p class="text-red-600 font-bold">-฿ 2,500.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Transaction Form -->
+                <div id="add-container" class="bg-white rounded-xl p-4 shadow-md hidden">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">เพิ่มรายการใหม่</h3>
+                    <form id="transaction-form">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ประเภทรายการ</label>
+                            <div class="flex space-x-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="type" value="income" class="mr-2 text-pink-600 w-5 h-5" checked>
+                                    <span>รายรับ</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="type" value="expense" class="mr-2 text-pink-600 w-5 h-5">
+                                    <span>รายจ่าย</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">รายละเอียด</label>
+                            <input type="text" class="input-field w-full px-3 py-3 rounded-lg outline-none" placeholder="เช่น เงินเดือน, ค่าอาหาร">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงิน (บาท)</label>
+                            <input type="number" class="input-field w-full px-3 py-3 rounded-lg outline-none" placeholder="0.00">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                            <input type="date" class="input-field w-full px-3 py-3 rounded-lg outline-none">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หมวดหมู่</label>
+                            <select class="input-field w-full px-3 py-3 rounded-lg outline-none">
+                                <option value="">เลือกหมวดหมู่</option>
+                                <option value="salary">เงินเดือน</option>
+                                <option value="bonus">โบนัส</option>
+                                <option value="food">อาหาร</option>
+                                <option value="transport">เดินทาง</option>
+                                <option value="utilities">สาธารณูปโภค</option>
+                                <option value="shopping">ช้อปปิ้ง</option>
+                                <option value="entertainment">บันเทิง</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-add w-full bg-pink-500 hover:bg-pink-600 text-white font-medium py-3 px-4 rounded-lg shadow-md text-lg">
+                            บันทึกรายการ
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Summary View -->
+                <div id="summary-container" class="bg-white rounded-xl p-4 shadow-md hidden">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">สรุปรายรับรายจ่าย</h3>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-md font-medium text-gray-600">เดือนนี้ (มิถุนายน 2023)</h4>
+                            <select class="bg-pink-50 text-pink-700 text-sm rounded-md px-2 py-1 border border-pink-200">
+                                <option value="current">เดือนนี้</option>
+                                <option value="last">เดือนที่แล้ว</option>
+                                <option value="year">ปีนี้</option>
+                            </select>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div class="summary-card bg-green-50 p-4 rounded-lg border border-green-200">
+                                <p class="text-sm text-green-700 mb-1">รายรับทั้งหมด</p>
+                                <p class="text-xl font-bold text-green-600">฿ 8,500.00</p>
+                                <div class="flex items-center mt-2 text-xs text-green-600">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                                    </svg>
+                                    <span>+15% จากเดือนที่แล้ว</span>
+                                </div>
+                            </div>
+                            <div class="summary-card bg-red-50 p-4 rounded-lg border border-red-200">
+                                <p class="text-sm text-red-700 mb-1">รายจ่ายทั้งหมด</p>
+                                <p class="text-xl font-bold text-red-600">฿ 3,250.00</p>
+                                <div class="flex items-center mt-2 text-xs text-red-600">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                    </svg>
+                                    <span>+5% จากเดือนที่แล้ว</span>
+                                </div>
+                            </div>
+                            <div class="summary-card bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                <p class="text-sm text-blue-700 mb-1">คงเหลือ</p>
+                                <p class="text-xl font-bold text-blue-600">฿ 5,250.00</p>
+                                <div class="flex items-center mt-2 text-xs text-blue-600">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                                    </svg>
+                                    <span>+20% จากเดือนที่แล้ว</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-md font-medium text-gray-600 mb-3">รายจ่ายสูงสุด 3 อันดับ</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                        <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"></path>
+                                            <path d="M3 10a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"></path>
+                                            <path d="M3 16a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"></path>
+                                        </svg>
+                                    </div>
+                                    <span>ค่าน้ำค่าไฟ</span>
+                                </div>
+                                <span class="font-medium text-red-600">฿ 2,500.00</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                                        <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"></path>
+                                        </svg>
+                                    </div>
+                                    <span>ค่าเดินทาง</span>
+                                </div>
+                                <span class="font-medium text-red-600">฿ 500.00</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <span>ค่าอาหาร</span>
+                                </div>
+                                <span class="font-medium text-red-600">฿ 250.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-md font-medium text-gray-600 mb-3">คำแนะนำ</h4>
+                        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-yellow-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1v-3a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                <p class="text-sm text-gray-700">
+                                    ค่าน้ำค่าไฟของคุณสูงกว่าค่าเฉลี่ย 30% ลองตรวจสอบการใช้ไฟฟ้าในบ้านเพื่อประหยัดค่าใช้จ่าย
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats View -->
+                <div id="stats-container" class="bg-white rounded-xl p-4 shadow-md hidden">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">สถิติการใช้จ่าย</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-md font-medium text-gray-600 mb-2">รายจ่ายตามหมวดหมู่</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <div class="w-20 text-sm">อาหาร</div>
+                                <div class="flex-1 bg-gray-200 rounded-full h-4">
+                                    <div class="bg-yellow-400 h-4 rounded-full" style="width: 35%"></div>
+                                </div>
+                                <div class="w-12 text-right text-sm">35%</div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 text-sm">เดินทาง</div>
+                                <div class="flex-1 bg-gray-200 rounded-full h-4">
+                                    <div class="bg-blue-400 h-4 rounded-full" style="width: 15%"></div>
+                                </div>
+                                <div class="w-12 text-right text-sm">15%</div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 text-sm">สาธารณูปโภค</div>
+                                <div class="flex-1 bg-gray-200 rounded-full h-4">
+                                    <div class="bg-red-400 h-4 rounded-full" style="width: 40%"></div>
+                                </div>
+                                <div class="w-12 text-right text-sm">40%</div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-20 text-sm">อื่นๆ</div>
+                                <div class="flex-1 bg-gray-200 rounded-full h-4">
+                                    <div class="bg-green-400 h-4 rounded-full" style="width: 10%"></div>
+                                </div>
+                                <div class="w-12 text-right text-sm">10%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-md font-medium text-gray-600 mb-2">รายรับ vs รายจ่าย</h4>
+                        <div class="h-40 flex items-end space-x-2 mb-2">
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="bg-green-400 w-full rounded-t-lg" style="height: 70%"></div>
+                                <p class="text-xs mt-1">มิ.ย.</p>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="bg-green-400 w-full rounded-t-lg" style="height: 60%"></div>
+                                <p class="text-xs mt-1">ก.ค.</p>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="bg-green-400 w-full rounded-t-lg" style="height: 80%"></div>
+                                <p class="text-xs mt-1">ส.ค.</p>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="bg-red-400 w-full rounded-t-lg" style="height: 40%"></div>
+                                <p class="text-xs mt-1">ก.ย.</p>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="bg-green-400 w-full rounded-t-lg" style="height: 65%"></div>
+                                <p class="text-xs mt-1">ต.ค.</p>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="bg-green-400 w-full rounded-t-lg" style="height: 75%"></div>
+                                <p class="text-xs mt-1">พ.ย.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-center space-x-4 text-sm">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-400 rounded-full mr-1"></div>
+                                <span>กำไร</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-red-400 rounded-full mr-1"></div>
+                                <span>ขาดทุน</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white bottom-nav">
+                <div class="flex max-w-md mx-auto">
+                    <button class="tab tab-active flex-1 py-3 flex flex-col items-center" id="tab-transactions">
+                        <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"></path>
+                        </svg>
+                        <span class="text-xs">รายการ</span>
+                    </button>
+                    <button class="tab flex-1 py-3 flex flex-col items-center" id="tab-add">
+                        <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-xs">เพิ่ม</span>
+                    </button>
+                    <button class="tab flex-1 py-3 flex flex-col items-center" id="tab-summary">
+                        <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
+                        </svg>
+                        <span class="text-xs">สรุป</span>
+                    </button>
+                    <button class="tab flex-1 py-3 flex flex-col items-center" id="tab-stats">
+                        <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                        <span class="text-xs">สถิติ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Start app button
+        const startApp = document.getElementById('start-app');
+        const coverContainer = document.getElementById('cover-container');
+        const mainContainer = document.getElementById('main-container');
+        
+        startApp.addEventListener('click', () => {
+            coverContainer.classList.add('hidden');
+            mainContainer.classList.remove('hidden');
+        });
+        
+        // Tab switching functionality
+        const tabTransactions = document.getElementById('tab-transactions');
+        const tabAdd = document.getElementById('tab-add');
+        const tabSummary = document.getElementById('tab-summary');
+        const tabStats = document.getElementById('tab-stats');
+        
+        const transactionsContainer = document.getElementById('transactions-container');
+        const addContainer = document.getElementById('add-container');
+        const summaryContainer = document.getElementById('summary-container');
+        const statsContainer = document.getElementById('stats-container');
+        
+        tabTransactions.addEventListener('click', () => {
+            tabTransactions.classList.add('tab-active');
+            tabAdd.classList.remove('tab-active');
+            tabSummary.classList.remove('tab-active');
+            tabStats.classList.remove('tab-active');
+            
+            transactionsContainer.classList.remove('hidden');
+            addContainer.classList.add('hidden');
+            summaryContainer.classList.add('hidden');
+            statsContainer.classList.add('hidden');
+            
+            // Scroll to top when switching tabs
+            window.scrollTo(0, 0);
+        });
+        
+        tabAdd.addEventListener('click', () => {
+            tabTransactions.classList.remove('tab-active');
+            tabAdd.classList.add('tab-active');
+            tabSummary.classList.remove('tab-active');
+            tabStats.classList.remove('tab-active');
+            
+            transactionsContainer.classList.add('hidden');
+            addContainer.classList.remove('hidden');
+            summaryContainer.classList.add('hidden');
+            statsContainer.classList.add('hidden');
+            
+            // Scroll to top when switching tabs
+            window.scrollTo(0, 0);
+        });
+        
+        tabSummary.addEventListener('click', () => {
+            tabTransactions.classList.remove('tab-active');
+            tabAdd.classList.remove('tab-active');
+            tabSummary.classList.add('tab-active');
+            tabStats.classList.remove('tab-active');
+            
+            transactionsContainer.classList.add('hidden');
+            addContainer.classList.add('hidden');
+            summaryContainer.classList.remove('hidden');
+            statsContainer.classList.add('hidden');
+            
+            // Scroll to top when switching tabs
+            window.scrollTo(0, 0);
+        });
+        
+        tabStats.addEventListener('click', () => {
+            tabTransactions.classList.remove('tab-active');
+            tabAdd.classList.remove('tab-active');
+            tabSummary.classList.remove('tab-active');
+            tabStats.classList.add('tab-active');
+            
+            transactionsContainer.classList.add('hidden');
+            addContainer.classList.add('hidden');
+            summaryContainer.classList.add('hidden');
+            statsContainer.classList.remove('hidden');
+            
+            // Scroll to top when switching tabs
+            window.scrollTo(0, 0);
+        });
+        
+        // Form submission
+        const transactionForm = document.getElementById('transaction-form');
+        transactionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Here you would normally process the form data
+            // For demo purposes, we'll just switch back to transactions tab
+            tabTransactions.click();
+            
+            // Show a success message
+            alert('บันทึกรายการเรียบร้อยแล้ว');
+        });
+        
+        // Filter transactions
+        const filterTransactions = document.getElementById('filter-transactions');
+        filterTransactions.addEventListener('change', () => {
+            // In a real app, this would filter the transactions
+            // For demo purposes, we'll just show an alert
+            alert(`กรองรายการ: ${filterTransactions.value}`);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d89e1f35a4fdc6',t:'MTc1NDkyNDU4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
